@@ -7,12 +7,28 @@ class EnvirofoneCsvMapper
 {
     public static function map(array $row): array
     {
-        $sku = ProductIdGenerator::generate(
-            $row['variant id'] ?? $row['Variant ID'] ?? null,
-            $row['Capacity'] ?? null,
-            $row['Colour']  ?? null,
-            $row['Condition'] ?? null
-        );
+        dump('rowwwww as Row', $row);
+        // $sku = 'EF-' . ($row['variant id'] ?? $row['Variant ID'] ?? null) . '-' . ($row['Colour']  ?? null) . '-' . ($row['Condition'] ?? null);
+        $variantId = $row['Variant ID']
+            ?? $row['variant_id']
+            ?? $row['variant id']
+            ?? null;
+
+        $colour = $row['Colour'] ?? null;
+        $condition = $row['Condition'] ?? null;
+
+        // Normalize values
+        $variantId = trim((string) $variantId);
+        $colour = $colour ? strtoupper(trim($colour)) : 'NA';
+        $condition = $condition ? strtoupper(trim($condition)) : 'NA';
+
+        // If variant ID missing → skip product
+        if (!$variantId) {
+            throw new \Exception('Missing variant ID');
+        }
+
+        $sku = sprintf('EF-%s-%s-%s', $variantId, $colour, $condition);
+        dump('Generated SKU:', $sku);
         $link = $row['Deep Link'] ?? ($row['deep_link'] ?? null);
         $parsed = $link ? parse_url($link) : [];
         $shopUrl = (!empty($parsed['scheme']) && !empty($parsed['host'])) ? ($parsed['scheme'].'://'.$parsed['host']) : null;

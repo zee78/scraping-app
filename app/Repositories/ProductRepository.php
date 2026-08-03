@@ -60,7 +60,6 @@ class ProductRepository
             ];
 
             // prefer link as unique key; fallback to source_id
-            
             $query = Product::query();
 
             if($shopName === 'www.envirofone.com'){
@@ -78,7 +77,7 @@ class ProductRepository
             }
 
             $product = $query->first();
-            
+            // dump('Updating product:', $product);
             if ($product) {
                 $product->update($payload);
             } else {

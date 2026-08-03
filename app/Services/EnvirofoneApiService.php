@@ -20,22 +20,31 @@ class EnvirofoneApiService
      * Fetch raw feed body from remote API.
      * $format: 'csv' or 'xml'
      */
-    public function fetchFeed(string $format = 'csv', int $limit = -1): string
-    {
-        $response = Http::withHeaders([
-            'RS-Key'    => config('services.envirofone.key'),
-            'RS-Secret' => config('services.envirofone.secret'),
-        ])
-        ->timeout(120) // increase from 30s → 120s
-        ->connectTimeout(20)
-        ->get($this->baseUrl, [
-            'format' => $format,
-            'limit'  => $limit,
+    public function fetchFeed(
+        string $format = 'csv', 
+        int $limit = -1, 
+        ?string $productType = null,
+        ?string $make = null,
+        ?bool $inStock = null
+    ): string {
+        $params = array_filter([
+            'data-experts' => config('services.envirofone.data_exerts_key'),
+            'format'       => strtoupper($format),
+            'limit'        => $limit > 0 ? $limit : null,
+            'product_type' => $productType,
+            'make'         => $make,
+            'in_stock'     => $inStock ? 'true' : null,
         ]);
+        $response = Http::timeout(300)
+        ->connectTimeout(120)
+        ->retry(3, 5000)
+        ->timeout(240)
+        ->get($this->baseUrl, $params);
 
         if ($response->failed()) {
             $this->logger->error('Envirofone API fetch failed', [
                 'status' => $response->status(),
+                'params' => $params,
                 'body' => $response->body(),
             ]);
             throw new \RuntimeException("Envirofone API returned status {$response->status()}");

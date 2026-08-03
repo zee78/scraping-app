@@ -35,6 +35,21 @@ return [
         'key'    => env('ENVIROFONE_API_KEY'),
         'secret' => env('ENVIROFONE_API_SECRET'),
         'url'    => env('ENVIROFONE_FEED_URL'),
+        'data_exerts_key' => env('ENVIROFONE_DATA_EXERTS_KEY'),
     ],
 
+    'mobilesentrix' => [
+        'email'    => env('MOBILESENTRIX_EMAIL'),
+        'password' => env('MOBILESENTRIX_PASSWORD'),
+    ],
+
+    'utopya' => [
+        'email'    => env('UTOPYA_EMAIL'),
+        'password' => env('UTOPYA_PASSWORD'),
+    ],
+    
+    'headlane' => [
+        'api_key' => env('HEADLANE_API_KEY'),
+        'api_url' => env('HEADLANE_API_URL'),
+    ],
 ];

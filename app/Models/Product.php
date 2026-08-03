@@ -23,6 +23,8 @@ class Product extends Model
         'colour',
         'size',
         'stock',
+        'nl_stock',
+        'uk_stock',
         'categories',
         'raw',
         'variant_id'

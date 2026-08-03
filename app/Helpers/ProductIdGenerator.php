@@ -18,6 +18,7 @@ class ProductIdGenerator
             self::clean($size),
             $color,
             $condition,
+            self::clean($size),
         ]);
 
         return implode('-', $parts);

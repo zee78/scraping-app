@@ -27,7 +27,15 @@ class SyncEnvirofoneProducts extends Command
     protected EnvirofoneApiService $apiService;
     protected FeedImporter $importer;
     protected LoggerInterface $logger;
-
+    protected array $makes = [
+        // 'Apple',
+        // 'Samsung',
+        'Sony',
+        // 'OnePlus',
+        // 'Google',
+        // 'Huawei',
+        // 'Motorola',
+    ];
     /**
      * Execute the console command.
      */
@@ -49,23 +57,26 @@ class SyncEnvirofoneProducts extends Command
         $this->info("Starting Envirofone sync (format={$format}, limit={$limit})");
 
         try {
-            $body = $this->apiService->fetchFeed($format, $limit);
-            // dd($body);
 
-            $this->info('Feed fetched — starting import.');
+            foreach ($this->makes as $make) { 
+                $body = $this->apiService->fetchFeed($format, $limit, null, $make, true);
 
-            $importedCount = 0;
+                $this->info('Feed fetched — starting import.');
 
-            if ($format === 'csv') {
-                $importedCount = $this->importer->importCsvString($body);
-            } else {
-                // for xml you would add an importXmlString method in FeedImporter
-                $this->error('Unsupported format for import: ' . $format);
-                return 1;
+                $importedCount = 0;
+
+                if ($format === 'xml') {
+                    $importedCount = $this->importer->importXmlString($body);
+                } else {
+                    $importedCount = $this->importer->importCsvString($body);
+                    // for xml you would add an importXmlString method in FeedImporter
+                    // $this->error('Unsupported format for import: ' . $format);
+                    // return 1;
+                }
+
+                $this->info("Import finished. Products imported: {$importedCount}");
+                $this->logger->info('Envirofone sync completed', ['imported' => $importedCount]);
             }
-
-            $this->info("Import finished. Products imported: {$importedCount}");
-            $this->logger->info('Envirofone sync completed', ['imported' => $importedCount]);
             $this->repo->conditionalExportCsv();
 
             $this->info("CSV exported successfully: ");
