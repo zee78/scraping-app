@@ -17,6 +17,7 @@ class Product extends Model
         'link',
         'main_image',
         'additional_images',
+        'video_url',
         'price',
         'sale_price',
         'reference',

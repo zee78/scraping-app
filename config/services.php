@@ -52,4 +52,26 @@ return [
         'api_key' => env('HEADLANE_API_KEY'),
         'api_url' => env('HEADLANE_API_URL'),
     ],
+
+    'partsbox' => [
+        'base_url'     => env('PARTSBOX_BASE_URL', 'https://www.partsbox.co.uk'),
+        'login_path'   => env('PARTSBOX_LOGIN_PATH', '/portal/login'),
+        // Set this to the catalogue landing page after the first successful login if it differs.
+        'catalogue_path' => env('PARTSBOX_CATALOGUE_PATH', '/portal/inventory'),
+        'email'        => env('PARTSBOX_EMAIL'),
+        'password'     => env('PARTSBOX_PASSWORD'),
+        'request_delay_ms' => (int) env('PARTSBOX_REQUEST_DELAY_MS', 350),
+        'rate_limit_retries' => (int) env('PARTSBOX_RATE_LIMIT_RETRIES', 3),
+        // PartsBox currently accepts a normal Chrome session but rate-limits cURL.
+        'browser_mode' => filter_var(env('PARTSBOX_BROWSER_MODE', true), FILTER_VALIDATE_BOOL),
+        'chrome_path' => env('PARTSBOX_CHROME_PATH'),
+    ],
+
+    'ozy_toolbox' => [
+        'base_url' => env('OZY_TOOLBOX_BASE_URL', 'https://www.ozytoolbox.com.au'),
+        'request_delay_ms' => (int) env('OZY_TOOLBOX_REQUEST_DELAY_MS', 500),
+        // Ozy is protected by Cloudflare; browser mode is the normal setting.
+        'browser_mode' => filter_var(env('OZY_TOOLBOX_BROWSER_MODE', true), FILTER_VALIDATE_BOOL),
+        'chrome_path' => env('OZY_TOOLBOX_CHROME_PATH'),
+    ],
 ];

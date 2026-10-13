@@ -15,15 +15,16 @@ class ScreenSurgeryScraper
      * Entry point
      */
     protected array $categories = [
-      'https://thescreensurgery.com/collections/iphone-parts',
-      'https://thescreensurgery.com/collections/ipad-parts',
-      'https://thescreensurgery.com/collections/for-apple-watch',
-      'https://thescreensurgery.com/collections/for-macbook',
+      // 'https://thescreensurgery.com/collections/iphone-parts',
+      // 'https://thescreensurgery.com/collections/ipad-parts',
+      // 'https://thescreensurgery.com/collections/for-apple-watch',
+      // 'https://thescreensurgery.com/collections/for-macbook',
+      'https://thescreensurgery.com/collections/replacement-screens-and-parts-for-samsung-s26-series',
       'https://thescreensurgery.com/collections/samsung-s25',
       'https://thescreensurgery.com/collections/samsung-s24-series',
       'https://thescreensurgery.com/collections/samsung-s23-series',
-      'https://thescreensurgery.com/collections/samsung-s22-series',
-      'https://thescreensurgery.com/collections/samsung-s21-series',
+      'https://thescreensurgery.com/collections/s22-series',
+      'https://thescreensurgery.com/collections/s21-series',
       'https://thescreensurgery.com/collections/samsung-s20-series',
       'https://thescreensurgery.com/collections/samsung-s10-series',
       'https://thescreensurgery.com/collections/samsung-s9-series',
@@ -44,8 +45,8 @@ class ScreenSurgeryScraper
       'https://thescreensurgery.com/collections/samsung-a0-series',
       'https://thescreensurgery.com/collections/samsung-note-20-series',
       'https://thescreensurgery.com/collections/samsung-note-10-series',
-      'https://thescreensurgery.com/collections/samsung-note-9',
-      'https://thescreensurgery.com/collections/samsung-note-8',
+      'https://thescreensurgery.com/collections/note-9',
+      'https://thescreensurgery.com/collections/note-8',
       'https://thescreensurgery.com/collections/j730',
       'https://thescreensurgery.com/collections/j710',
       'https://thescreensurgery.com/collections/j700',
@@ -67,6 +68,8 @@ class ScreenSurgeryScraper
       'https://thescreensurgery.com/collections/nintendo',
       'https://thescreensurgery.com/collections/playstation',
       'https://thescreensurgery.com/collections/microsoft',
+      'https://thescreensurgery.com/collections/google-pixel-10-series',
+      'https://thescreensurgery.com/collections/google-pixel-9-series-copy',
       'https://thescreensurgery.com/collections/google-pixel-9-series',
       'https://thescreensurgery.com/collections/google-pixel-8-series',
       'https://thescreensurgery.com/collections/google-pixel-7-series',
@@ -109,15 +112,113 @@ class ScreenSurgeryScraper
       'https://thescreensurgery.com/collections/huawei-mate-10',
 
     ];
+    // public function scrapeAll(): void
+    // {
+    //     $categories = array_values(array_unique($this->categories));
+
+    //     $totalCategories = count($categories);
+    //     $totalExpected = 0;
+    //     $totalDiscovered = 0;
+    //     $totalSuccessful = 0;
+    //     $totalFailed = 0;
+    //     $unknownExpectedCategories = 0;
+
+    //     logger()->info('========== SCRAPING STARTED ==========', [
+    //         'total_categories' => $totalCategories,
+    //     ]);
+
+    //     foreach ($this->categories as $index =>  $categoryUrl) {
+            
+    //         logger()->info('Processing category', [
+    //             'category_number' => $index + 1,
+    //             'total_categories' => $totalCategories,
+    //             'category_url' => $categoryUrl,
+    //         ]);
+
+    //         $result = $this->scrapeCategory($categoryUrl);
+
+    //         if ($result['expected'] !== null) {
+    //             $totalExpected += $result['expected'];
+    //         } else {
+    //             $unknownExpectedCategories++;
+    //         }
+
+    //         $totalDiscovered += $result['discovered'];
+    //         $totalSuccessful += $result['successful'];
+    //         $totalFailed += $result['failed'];
+
+    //     }
+
+    //     logger()->info('========== FINAL SCRAPING SUMMARY ==========', [
+    //         'total_categories' => $totalCategories,
+    //         'categories_without_expected_count' => $unknownExpectedCategories,
+    //         'expected_products' => $unknownExpectedCategories === 0
+    //             ? $totalExpected
+    //             : 'PARTIAL / UNKNOWN',
+    //         'discovered_products' => $totalDiscovered,
+    //         'successfully_scraped' => $totalSuccessful,
+    //         'failed_products' => $totalFailed,
+    //         'missing_products' => $unknownExpectedCategories === 0
+    //             ? max(0, $totalExpected - $totalDiscovered)
+    //             : 'UNKNOWN',
+    //     ]);
+
+    //     $this->exportToCsv();
+
+    //     logger()->info('========== SCRAPING FINISHED ==========');
+    // }
+
+
     public function scrapeAll(): void
     {
-        // $categories = $this->getCategories();
-        // dd($categories); // Debug: inspect category URLs before scraping
-        foreach ($this->categories as $categoryUrl) {
-            $this->scrapeCategory($categoryUrl);
+        // Remove duplicate category URLs
+        $categories = array_values(array_unique($this->categories));
+
+        
+        $totalCategories = count($categories);
+        $totalSuccessful = 0;
+        $totalFailed = 0;
+
+        logger()->info('========== SCRAPING STARTED ==========', [
+            'total_categories' => $totalCategories,
+        ]);
+
+        foreach ($categories as $index => $categoryUrl) {
+            echo "Category url, {$categoryUrl}\n";
+            logger()->info('PROCESSING CATEGORY', [
+                'category_number' => $index + 1,
+                'total_categories' => $totalCategories,
+                'category_url' => $categoryUrl,
+            ]);
+
+            $result = $this->scrapeCategory($categoryUrl);
+
+            $totalSuccessful += $result['successful'];
+            $totalFailed += $result['failed'];
+
+            logger()->info('CATEGORY COMPLETED', [
+                'category_url' => $categoryUrl,
+                'products_found' => $result['discovered'],
+                'successful' => $result['successful'],
+                'failed' => $result['failed'],
+                'overall_successful' => $totalSuccessful,
+                'overall_failed' => $totalFailed,
+            ]);
         }
+
         $this->exportToCsv();
+
+        logger()->info('========== SCRAPING FINISHED ==========', [
+            'total_categories' => $totalCategories,
+            'total_successful' => $totalSuccessful,
+            'total_failed' => $totalFailed,
+            'database_products' => Product::where(
+                'shop_url',
+                'thescreensurgery.com'
+            )->count(),
+        ]);
     }
+
 
     /**
      * STEP 1: Get categories (basic fallback if no sitemap API)
@@ -156,100 +257,363 @@ class ScreenSurgeryScraper
     /**
      * STEP 2: Scrape category pages with pagination
      */
-    // protected function scrapeCategory(string $categoryUrl): void
-    // {
-    //     $page = 1;
-
-    //     while (true) {
-
-    //         $url = $page === 1
-    //             ? $categoryUrl
-    //             : $categoryUrl . '/page/' . $page;
-
-    //         $html = Http::withHeaders([
-    //             'User-Agent' => 'Mozilla/5.0 (compatible; LaravelScraper/1.0)'
-    //         ])->timeout(30)->get($url)->body();
-
-    //         $crawler = new Crawler($html);
-
-    //         // product links (WooCommerce default)
-    //         $productLinks = $crawler->filter('a.productitem--image-link')
-    //             ->each(fn ($node) => $node->attr('href'));
-
-    //         $productLinks = array_filter($productLinks);
-
-    //         if (empty($productLinks)) {
-    //             break; // stop pagination
-    //         }
-
-    //         foreach ($productLinks as $link) {
-    //             if (!$link) continue;
-
-    //             $link = $this->normalizeUrl($link); 
-    //             $this->scrapeProduct($link);
-    //         }
-
-    //         $page++;
-
-    //         usleep(rand(300000, 800000)); // delay
-    //     }
-    // }
-
-    protected function scrapeCategory(string $categoryUrl): void
+    protected function scrapeCategory(string $categoryUrl): array
     {
         $page = 1;
+
+        $discoveredCount = 0;
+        $successfulCount = 0;
+        $failedCount = 0;
+
+        $processedUrls = [];
+
+        logger()->info('========== CATEGORY START ==========', [
+            'category_url' => $categoryUrl,
+        ]);
 
         while (true) {
 
             $url = $categoryUrl . ($page > 1 ? '?page=' . $page : '');
-            $html = Http::withHeaders([
-                'User-Agent' => 'Mozilla/5.0'
-            ])->timeout(30)->get($url)->body();
 
-            $crawler = new Crawler($html);
+            try {
 
-            $productLinks = $crawler->filter('a.productitem--image-link')
-                ->each(fn ($node) => $node->attr('href'));
+                logger()->info('SCRAPING CATEGORY PAGE', [
+                    'category_url' => $categoryUrl,
+                    'page' => $page,
+                    'page_url' => $url,
+                ]);
 
-            $productLinks = array_filter($productLinks);
+                $response = Http::withHeaders([
+                    'User-Agent' => 'Mozilla/5.0',
+                ])->timeout(30)->get($url);
 
-            dump("Page: $page | Products: " . count($productLinks));
+                if (!$response->successful()) {
 
-            if (count($productLinks) === 0) {
+                    logger()->error('Category page request failed', [
+                        'category_url' => $categoryUrl,
+                        'page_url' => $url,
+                        'status' => $response->status(),
+                    ]);
+
+                    break;
+                }
+
+                $crawler = new Crawler($response->body());
+
+                $productLinks = $crawler
+                    ->filter('[data-product-item]')
+                    ->each(function ($node) {
+
+                        $link = $node->filter('a[data-product-page-link]');
+
+                        if ($link->count() === 0) {
+                            return null;
+                        }
+
+                        return $link->first()->attr('href');
+                    });
+
+                $productLinks = array_values(array_unique(
+                    array_filter($productLinks)
+                ));
+
+                echo "Categoryssss: {$categoryUrl}\n";
+                echo "Page: {$page}\n";
+                echo "Products Found: " . count($productLinks) . "\n";
+
+                if (count($productLinks) === 0) {
+                    break;
+                }
+
+                logger()->info('PRODUCTS FOUND ON PAGE', [
+                    'category_url' => $categoryUrl,
+                    'page' => $page,
+                    'products_found' => count($productLinks),
+                ]);
+
+                $newProducts = 0;
+
+                foreach ($productLinks as $index => $link) {
+
+                    $productUrl = $this->normalizeUrl($link);
+
+                    // Skip duplicate products within this category
+                    if (isset($processedUrls[$productUrl])) {
+                        continue;
+                    }
+
+                    $processedUrls[$productUrl] = true;
+
+                    $newProducts++;
+                    $discoveredCount++;
+
+                    // Log the product currently being scraped
+                    logger()->info('SCRAPING PRODUCT', [
+                        'category_url' => $categoryUrl,
+                        'product_number' => $discoveredCount,
+                        'product_url' => $productUrl,
+                    ]);
+
+                    echo "Product URL: " . ($index + 1) . ", {$productUrl}\n";
+                    $success = $this->scrapeProduct($productUrl);
+
+                    if ($success) {
+
+                        $successfulCount++;
+                        echo "Success Category URL., {$categoryUrl}\n";
+                        logger()->info('PRODUCT SCRAPED SUCCESSFULLY', [
+                            'product_url' => $productUrl,
+                            'category_url' => $categoryUrl,
+                            'total_successful' => $successfulCount,
+                        ]);
+
+                    } else {
+
+                        $failedCount++;
+
+                        logger()->error('PRODUCT SCRAPING FAILED', [
+                            'product_url' => $productUrl,
+                            'category_url' => $categoryUrl,
+                            'total_failed' => $failedCount,
+                        ]);
+                    }
+                }
+
+                logger()->info('PAGE COMPLETED', [
+                    'category_url' => $categoryUrl,
+                    'page' => $page,
+                    'total_discovered' => $discoveredCount,
+                    'successful' => $successfulCount,
+                    'failed' => $failedCount,
+                ]);
+
+                // Stop if pagination repeats previously processed products
+                if ($newProducts === 0) {
+                    break;
+                }
+
+                $page++;
+
+                usleep(rand(300000, 800000));
+
+            } catch (\Throwable $e) {
+
+                logger()->error('Category scraping error', [
+                    'category_url' => $categoryUrl,
+                    'page' => $page,
+                    'error' => $e->getMessage(),
+                ]);
+
                 break;
             }
-
-            foreach ($productLinks as $link) {
-                $this->scrapeProduct($this->normalizeUrl($link));
-            }
-
-            $page++;
-
-            if ($page > 50) break; // safety
-
-            usleep(rand(300000, 800000));
         }
+
+        logger()->info('========== CATEGORY SUMMARY ==========', [
+            'category_url' => $categoryUrl,
+            'products_found' => $discoveredCount,
+            'successful' => $successfulCount,
+            'failed' => $failedCount,
+        ]);
+
+        return [
+            'discovered' => $discoveredCount,
+            'successful' => $successfulCount,
+            'failed' => $failedCount,
+        ];
     }
 
+
+    protected function getExpectedProductCount(string $categoryUrl): ?int
+    {
+        $total = 0;
+        $page = 1;
+        $limit = 250;
+
+        try {
+
+            while (true) {
+
+                $url = rtrim($categoryUrl, '/') . '/products.json';
+
+                $response = Http::withHeaders([
+                    'User-Agent' => 'Mozilla/5.0',
+                    'Accept' => 'application/json',
+                ])
+                    ->timeout(30)
+                    ->get($url, [
+                        'limit' => $limit,
+                        'page' => $page,
+                    ]);
+
+                if (!$response->successful()) {
+
+                    logger()->warning('Unable to retrieve expected product count', [
+                        'category' => $categoryUrl,
+                        'page' => $page,
+                        'status_code' => $response->status(),
+                    ]);
+
+                    return null;
+                }
+
+                $products = $response->json('products');
+
+                if (!is_array($products)) {
+
+                    logger()->warning('Invalid collection JSON response', [
+                        'category' => $categoryUrl,
+                        'page' => $page,
+                    ]);
+
+                    return null;
+                }
+
+                $count = count($products);
+
+                $total += $count;
+
+                logger()->info('EXPECTED COUNT PAGE', [
+                    'category' => $categoryUrl,
+                    'page' => $page,
+                    'products_found' => $count,
+                    'total_so_far' => $total,
+                ]);
+
+                if ($count < $limit) {
+                    break;
+                }
+
+                $page++;
+
+                // Safety limit to prevent infinite pagination
+                if ($page > 100) {
+
+                    logger()->warning('Expected count pagination limit reached', [
+                        'category' => $categoryUrl,
+                        'count_so_far' => $total,
+                    ]);
+
+                    return null;
+                }
+            }
+
+            logger()->info('EXPECTED PRODUCT COUNT RETRIEVED', [
+                'category' => $categoryUrl,
+                'expected_products' => $total,
+            ]);
+
+            return $total;
+
+        } catch (\Throwable $e) {
+
+            logger()->error('Expected product count request failed', [
+                'category' => $categoryUrl,
+                'error' => $e->getMessage(),
+            ]);
+
+            return null;
+        }
+    }
     /**
      * STEP 3: Scrape single product page
      */
-    protected function scrapeProduct(string $url): void
-    {
-
-        $html = Http::withHeaders([
-            'User-Agent' => 'Mozilla/5.0 (compatible; LaravelScraper/1.0)'
-        ])->timeout(30)->get($url)->body();
-
-        $crawler = new Crawler($html);
+    protected function scrapeProduct(string $url): bool
+    {   
+        echo "Scrape Product URL, {$url}\n";
 
         try {
-            // -------------------------
-            // BASIC FIELDS
-            // -------------------------
-            $name = $crawler->filter('h1.product-title')->text('');
+            // $html = Http::withHeaders([
+            //     'User-Agent' => 'Mozilla/5.0 (compatible; LaravelScraper/1.0)'
+            // ])->timeout(30)->get($url)->body();
+            $maxRetries = 3;
+            $response = null;
 
-            $sku = $crawler->filter('[data-product-sku]')->text('');
+            for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
+
+                // Delay between requests
+                sleep(rand(3, 6));
+
+                $response = Http::withHeaders([
+                    'User-Agent' => 'Mozilla/5.0',
+                    'Accept' => 'text/html',
+                ])
+                    ->timeout(30)
+                    ->get($url);
+
+                // Rate limit handling
+                if ($response->status() === 429) {
+
+                    $retryAfter = $response->header('Retry-After');
+
+                    if (is_numeric($retryAfter)) {
+                        $waitSeconds = max(1, min(300, (int) $retryAfter));
+                    } elseif ($retryAfter && ($retryTime = strtotime($retryAfter)) !== false) {
+                        $waitSeconds = max(1, min(300, $retryTime - time()));
+                    } else {
+                        $waitSeconds = 60 * $attempt;
+                    }
+
+                    echo "RATE LIMITED: {$url}\n";
+                    echo "Attempt: {$attempt}/{$maxRetries}\n";
+
+                    if ($attempt < $maxRetries) {
+                        echo "Waiting {$waitSeconds} seconds before retry...\n";
+                        sleep($waitSeconds);
+                    }
+
+                    continue;
+                }
+
+                // Other HTTP errors
+                if (!$response->successful()) {
+
+                    echo "HTTP ERROR: {$response->status()}\n";
+                    echo "Failed URL: {$url}\n";
+
+                    return false;
+                }
+
+                // Request successful
+                break;
+            }
+
+            // Check final response
+            if (!$response || !$response->successful()) {
+
+                echo "FAILED AFTER {$maxRetries} ATTEMPTS: {$url}\n";
+
+                logger()->error('Product failed after retries', [
+                    'url' => $url,
+                    'status' => $response?->status(),
+                ]);
+
+                return false;
+            }
+
+            $html = $response->body();
+
+            $crawler = new Crawler($html);
+
+            $name = trim($crawler->filter('h1.product-title')->text(''));
+
+            if ($name === '') {
+
+                echo "INVALID PRODUCT HTML: {$url}\n";
+
+                logger()->error('Product name missing', [
+                    'url' => $url,
+                    'status' => $response->status(),
+                ]);
+
+                return false;
+            }
+
+            echo "Product Name: {$name}\n";
+
+            // Newer product templates do not render a SKU element.  Do not let
+            // an optional field abort an otherwise valid product scrape.
+            $skuNode = $crawler->filter('[data-product-sku]');
+            $sku = $skuNode->count() > 0 ? trim($skuNode->first()->text('')) : null;
 
             // -------------------------
             // PRICE
@@ -277,7 +641,8 @@ class ScreenSurgeryScraper
             // -------------------------
             // STOCK (BEST SOURCE)
             // -------------------------
-            $stockJson = $crawler->filter('script[data-app="esc-out-of-stock"]')->text('');
+            $stockNode = $crawler->filter('script[data-app="esc-out-of-stock"]');
+            $stockJson = $stockNode->count() > 0 ? $stockNode->first()->text('') : '';
 
             $stockData = json_decode($stockJson, true);
 
@@ -289,7 +654,10 @@ class ScreenSurgeryScraper
             // -------------------------
             // IMAGES
             // -------------------------
-            $mainImage = $crawler->filter('.product-gallery--viewer img')->attr('src');
+            $mainImageNode = $crawler->filter('.product-gallery--viewer img');
+            $mainImage = $mainImageNode->count() > 0
+                ? $mainImageNode->first()->attr('src')
+                : null;
 
             if ($mainImage && str_starts_with($mainImage, '//')) {
                 $mainImage = 'https:' . $mainImage;
@@ -316,43 +684,41 @@ class ScreenSurgeryScraper
             // -------------------------
             $source_id = md5($url);
             
-            // $data = [
-            //     'shop_url' => 'thescreensurgery.com',
-            //     'source_id' => $source_id,
-            //     'name' => $name,
-            //     'sku' => $sku ?: null,
-            //     'price' => $regularPrice,
-            //     'sale_price' => $salePrice,
-            //     // 'availability' => $availability,
-            //     'stock' => $inventoryQty,
-            //     'main_image' => $mainImage,
-            //     'additional_images' => json_encode($additionalImages),
-            //     'link' => $url,
-            // ];
-            // STORE (adjust model as needed)
-              Product::updateOrCreate(
-                [  
-                  'sku' => $sku ?: null,
+            // The product URL is stable even when the storefront does not expose
+            // a SKU. Matching on a nullable SKU made all SKU-less products share
+            // one record (and now threw before this point on the new templates).
+            Product::updateOrCreate(
+                [
+                    'shop_url' => 'thescreensurgery.com',
+                    'source_id' => $source_id,
                 ],
                 [
-                  'shop_url' => 'thescreensurgery.com',
-                  'title' => $name,
-                  'sku' => $sku ?: null,
-                  'price' => $regularPrice,
-                  'sale_price' => $salePrice,
-                  'availability' => $availability,
-                  'stock' => $inventoryQty,
-                  'main_image' => $mainImage,
-                  'additional_images' => json_encode($additionalImages),
-                  'link' => $url,
+                    'title' => $name,
+                    'sku' => $sku,
+                    'price' => $regularPrice,
+                    'sale_price' => $salePrice,
+                    'stock' => $inventoryQty,
+                    'main_image' => $mainImage,
+                    'additional_images' => array_values($additionalImages),
+                    'link' => $url,
                 ]
             );
+              echo "Product scraped successfully, {$sku}";
+            logger()->info('Product scraped successfully', [
+                'url' => $url,
+                'sku' => $sku,
+                'name' => $name,
+            ]);
+            return true;
 
         } catch (\Throwable $e) {
             // log and skip broken products
-            logger()->error('Scrape failed: ' . $url, [
-                'error' => $e->getMessage()
+            logger()->error('Product scraping failed', [
+                'url' => $url,
+                'error' => $e->getMessage(),
             ]);
+
+            return false;
         }
     }
 
